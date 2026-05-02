@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Games for Students</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #1a0a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #f5c6dd;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #f5c6dd;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 1px solid rgba(245,198,221,0.3);
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(245,198,221,0.1); }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 22px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            border-color: rgba(245,198,221,0.3);
+        }
+
+        .game-img-wrap {
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-emoji {
+            font-size: 64px;
+            line-height: 1;
+        }
+
+        .game-info {
+            padding: 14px 16px 18px;
+        }
+
+        .game-info h3 {
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .game-info p {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .game-info a {
+            display: inline-block;
+            background: linear-gradient(135deg, #6b0f3a, #9b1a52);
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .game-info a:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+
+    <a href="home.html" class="back-btn">← Back to Home</a>
+
+    <h1>🎮 Fun Games for Students</h1>
+    <p class="subtitle">Take a break, recharge your brain!</p>
+
+    <div class="games-grid">
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">❌⭕</span></div>
+            <div class="game-info">
+                <h3>Tic-Tac-Toe</h3>
+                <p>Classic 2-player game. Challenge a friend!</p>
+                <a href="https://playtictactoe.org/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🔢</span></div>
+            <div class="game-info">
+                <h3>Sudoku</h3>
+                <p>Sharpen your logic with number puzzles.</p>
+                <a href="https://www.websudoku.com/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">♟️</span></div>
+            <div class="game-info">
+                <h3>Chess</h3>
+                <p>The ultimate strategy game. Play online!</p>
+                <a href="https://www.chess.com/play" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🧠</span></div>
+            <div class="game-info">
+                <h3>Memory Game</h3>
+                <p>Test and improve your memory skills.</p>
+                <a href="https://www.memozor.com" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🐍</span></div>
+            <div class="game-info">
+                <h3>Snake Game</h3>
+                <p>Classic snake — how long can you grow?</p>
+                <a href="https://playsnake.org/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🐦</span></div>
+            <div class="game-info">
+                <h3>Flappy Bird</h3>
+                <p>Tap to fly — avoid the pipes!</p>
+                <a href="https://flappybird.io/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">➕</span></div>
+            <div class="game-info">
+                <h3>Math Playground</h3>
+                <p>Fun math games to boost your skills.</p>
+                <a href="https://www.mathplayground.com/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🔤</span></div>
+            <div class="game-info">
+                <h3>Scrabble</h3>
+                <p>Build words, score big!</p>
+                <a href="https://playscrabble.com" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">💬</span></div>
+            <div class="game-info">
+                <h3>Wordle</h3>
+                <p>Guess the 5-letter word in 6 tries!</p>
+                <a href="https://www.nytimes.com/games/wordle/index.html" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🟩</span></div>
+            <div class="game-info">
+                <h3>Quordle</h3>
+                <p>Guess 4 words at once — extra challenge!</p>
+                <a href="https://www.quordle.com/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">💧</span></div>
+            <div class="game-info">
+                <h3>Water Sort Puzzle</h3>
+                <p>Sort colored water into the right tubes.</p>
+                <a href="https://watersort.org/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🔼</span></div>
+            <div class="game-info">
+                <h3>2048</h3>
+                <p>Slide and merge tiles to reach 2048!</p>
+                <a href="https://play2048.co/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">❓</span></div>
+            <div class="game-info">
+                <h3>Trivia Crack</h3>
+                <p>Test your knowledge across 6 categories.</p>
+                <a href="https://www.triviacrack.com/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🌍</span></div>
+            <div class="game-info">
+                <h3>GeoGuessr</h3>
+                <p>Guess where in the world you are!</p>
+                <a href="https://www.geoguessr.com/" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img-wrap"><span class="game-emoji">🔴🟡</span></div>
+            <div class="game-info">
+                <h3>Connect 4</h3>
+                <p>Drop pieces and connect 4 in a row!</p>
+                <a href="https://papergames.io/en/connect4" target="_blank">Play Now →</a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

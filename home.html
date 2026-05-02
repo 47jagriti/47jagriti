@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Productivity Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+/* Background */
+body{
+  background:url('https://i.pinimg.com/736x/cf/95/03/cf9503d53f09fcc25826130e027bcfdb.jpg') no-repeat center/cover;
+  min-height:100vh;
+  color: black;
+}
+
+/* Overlay */
+body::before{
+  content:"";
+  position:fixed;
+  width:100%;
+  height:100%;
+  z-index:0;
+}
+
+/* NAVBAR */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 30px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(0px);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:800;
+  color:#070606;
+}
+
+.menu-toggle{
+  font-size:38px;
+  cursor:pointer;
+  color:#470b05;
+  background:none;
+  border:none;
+  font-family:inherit;
+}
+
+/* SIDE DRAWER */
+.side-menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100%;
+  background:rgba(41, 2, 28, 0.886);
+  backdrop-filter:blur(16px);
+  z-index:500;
+  transition:right 0.35s cubic-bezier(.4,0,.2,1);
+  display:flex;
+  flex-direction:column;
+  box-shadow:-6px 0 30px rgba(0,0,0,0.4);
+}
+
+.side-menu.open{
+  right:0;
+}
+
+.side-menu-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:22px 24px;
+  border-bottom:1px solid rgba(255,255,255,0.12);
+}
+
+.side-menu-title{
+  color:#fff;
+  font-size:17px;
+  font-weight:600;
+}
+
+.close-btn{
+  font-size:22px;
+  cursor:pointer;
+  color:#ffb3d1;
+  background:none;
+  border:none;
+  font-family:inherit;
+}
+
+.side-menu nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:16px 14px;
+  flex:1;
+}
+
+.side-menu nav a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+  color:#f5c6dd;
+  font-size:15px;
+  font-weight:500;
+  padding:11px 14px;
+  border-radius:10px;
+  transition:background 0.2s, color 0.2s;
+}
+
+.side-menu nav a:hover{
+  background:rgba(255,255,255,0.13);
+  color:#fff;
+}
+
+.side-menu nav a .nav-icon{
+  font-size:19px;
+}
+
+.side-menu-footer{
+  padding:16px 20px 24px;
+  border-top:1px solid rgba(255,255,255,0.12);
+}
+
+.theme-btn{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1.5px solid rgba(255,255,255,0.2);
+  background:transparent;
+  color:#f5c6dd;
+  font-size:14px;
+  cursor:pointer;
+  font-family:'Poppins',sans-serif;
+  transition:background 0.2s;
+}
+.theme-btn:hover{background:rgba(255,255,255,0.1);}
+
+/* Overlay behind drawer */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  z-index:400;
+}
+.overlay.show{display:block;}
+
+/* CONTAINER */
+.container{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:68px;
+  padding:50px 20px;
+}
+
+.row{
+  display:flex;
+  justify-content:center;
+  gap:28px;
+  flex-wrap:wrap;
+}
+
+/* CARD - maroon */
+.card{
+  width:250px;
+  height:200px;
+  background:linear-gradient(135deg,#4f0e2d 0%,#b4396e 60%,#360418 100%);
+  color:#fff;
+  border-radius:15px;
+  text-align:center;
+  padding:20px;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  transition:0.3s;
+  box-shadow:0 6px 24px rgba(170, 134, 150, 0.803);
+  border:1px solid rgba(17, 15, 15, 0.849);
+}
+
+.card:hover{
+  transform:translateY(-8px) scale(1.05);
+  box-shadow:0 16px 36px rgba(107,15,58,0.5);
+}
+
+.icon{
+  font-size:35px;
+  margin-bottom:10px;
+}
+
+/* DARK MODE */
+.dark{
+  background:#111;
+  color:#fff;
+}
+
+.dark .navbar{
+  background:#222;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- Side Drawer Menu -->
+<div class="side-menu" id="sideMenu">
+  <div class="side-menu-header">
+    <span class="side-menu-title">📚 Menu</span>
+    <button class="close-btn" onclick="closeMenu()">✕</button>
+  </div>
+  <nav>
+    <a href="tasks.html"><span class="nav-icon">📋</span> Tasks</a>
+    <a href="assignments.html"><span class="nav-icon">📁</span> Assignments</a>
+    <a href="calendar.html"><span class="nav-icon">📅</span> Calendar</a>
+    <a href="custom_timetable.html"><span class="nav-icon">📚</span> Timetable</a>
+    <a href="timer.html"><span class="nav-icon">⏳</span> Timer</a>
+    <a href="fungames.html"><span class="nav-icon">🎮</span> Fun</a>
+    <a href="productivity.html"><span class="nav-icon">📈</span> Progress</a>
+  </nav>
+  <div class="side-menu-footer">
+    <button class="theme-btn" onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">Student Productivity Dashboard</div>
+  <div class="logo">Plan .Track .Improve your study</div>
+  <button class="menu-toggle" onclick="openMenu()">☰</button>
+</nav>
+
+<!-- CARDS -->
+<div class="container">
+
+  <!-- Row 1 — 4 cards -->
+  <div class="row">
+    <a href="tasks.html" class="card">
+      <div class="icon">📋</div>
+      <h3>Task Planner</h3>
+      <p>Plan your daily tasks</p>
+    </a>
+
+    <a href="assignments.html" class="card">
+      <div class="icon">📁</div>
+      <h3>Assignments</h3>
+      <p>Track your assignments</p>
+    </a>
+
+    <a href="calendar.html" class="card">
+      <div class="icon">📅</div>
+      <h3>Calendar</h3>
+      <p>Manage important dates</p>
+    </a>
+
+    <a href="custom_timetable.html" class="card">
+      <div class="icon">📚</div>
+      <h3>Timetable</h3>
+      <p>Create your schedule</p>
+    </a>
+  </div>
+
+  <!-- Row 2 — 3 cards centered -->
+  <div class="row">
+    <a href="timer.html" class="card">
+      <div class="icon">⏳</div>
+      <h3>Study Timer</h3>
+      <p>Stay focused</p>
+    </a>
+
+    <a href="fungames.html" class="card">
+      <div class="icon">🎮</div>
+      <h3>Refresh Zone</h3>
+      <p>Take a break</p>
+    </a>
+
+    <a href="productivity.html" class="card">
+      <div class="icon">📈</div>
+      <h3>Progress</h3>
+      <p>Track growth</p>
+    </a>
+  </div>
+
+</div>
+
+<script>
+function openMenu(){
+  document.getElementById('sideMenu').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeMenu(){
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  if(document.body.classList.contains('dark')){
+    localStorage.setItem('theme','dark');
+  }else{
+    localStorage.setItem('theme','light');
+  }
+}
+
+window.onload=function(){
+  if(localStorage.getItem('theme')==='dark'){
+    document.body.classList.add('dark');
+  }
+}
+</script>
+
+</body>
+</html>

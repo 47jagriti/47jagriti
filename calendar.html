@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Yearly Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: url('https://i.pinimg.com/736x/e8/c6/5a/e8c65a73884ed259f43404152522228f.jpg') no-repeat center center/cover;
+            background-size:  top;
+            background-color: black;
+            background: linear-gradient( #ffd6e0, #d4f8e8);
+            text-align: center;
+            padding: 20px;
+        }
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .month {
+            background: linear-gradient(74deg, rgba(238, 126, 195, 1) 9%, rgba(149, 175, 213, 0.98) 100%);
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .month h2 {
+            text-align: center;
+        }
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            color: black;
+        }
+        .day {
+            padding: 8px;
+            border-radius: 5px;
+            transition: 0.3s;
+            cursor: pointer;
+            text-align: center;
+            min-width: 30px;
+        }
+        .day:hover, .day.active {
+            background: rgba(238, 126, 195, 0.7);
+            color: white;
+        }
+        .current-day {
+            border: 2px solid red;
+        }
+        .has-task {
+            background: yellow;
+            color: black;
+        }
+        .todo-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            max-width: 400px;
+            display: none;
+        }
+        .todo-container textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .todo-container button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .save-btn {
+            background: green;
+            color: white;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+        }
+        .task-reminder {
+            background: white;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: left;
+            margin: auto;
+        }
+        .task-reminder h3 {
+            margin-bottom: 10px;
+            color: red;
+        }
+        @media (max-width: 768px) {
+            .calendar-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Style for navigation buttons */
+        #yearControls button {
+            padding: 8px 15px;
+            margin: 0 8px 20px 8px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background-color: #ee7ec3;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        #yearControls button:hover {
+            background-color: #a64a7a;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+       <a href="home.html">Home</a>
+       <a href="tasks.html">Tasks</a>
+       <a href="assignments.html">Assignments</a>
+       <a href="calendar.html">Calendar</a>
+       <a href="timer.html">Timer</a>
+    </nav>
+    <h1>Yearly Calendar - <span id="year"></span></h1>
+    <!-- Year navigation buttons will go here -->
+    <div id="yearControls"></div>
+
+    <div class="task-reminder" id="taskReminder"></div>
+    <div class="calendar-container" id="calendar"></div>
+    <div class="todo-container" id="todoContainer">
+        <h2 id="todoTitle"></h2>
+        <textarea id="todoInput" placeholder="Enter your tasks..."></textarea>
+        <button class="save-btn" onclick="saveTodo()">Save</button>
+        <button class="delete-btn" onclick="deleteTodo()">Delete</button>
+        <button onclick="closeTodo()">Close</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const calendarContainer = document.getElementById("calendar");
+            const yearElement = document.getElementById("year");
+            const taskReminder = document.getElementById("taskReminder");
+            const yearControls = document.getElementById("yearControls");
+
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"];
+            const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            let displayedYear = new Date().getFullYear();
+
+            // Create buttons for previous and next year
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "Previous Year";
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "Next Year";
+
+            yearControls.appendChild(prevBtn);
+            yearControls.appendChild(nextBtn);
+
+            prevBtn.addEventListener("click", () => {
+                displayedYear--;
+                generateCalendar(displayedYear);
+            });
+
+            nextBtn.addEventListener("click", () => {
+                displayedYear++;
+                generateCalendar(displayedYear);
+            });
+
+            function daysInMonth(month, year) {
+                return new Date(year, month + 1, 0).getDate();
+            }
+
+            function firstDayOfMonth(month, year) {
+                return new Date(year, month, 1).getDay();
+            }
+
+            function displayReminders(year) {
+                let reminders = "";
+                Object.keys(localStorage).forEach(date => {
+                    if (date.startsWith(year)) {
+                        reminders += `<p><strong>${date}</strong>: ${localStorage.getItem(date)}</p>`;
+                    }
+                });
+                taskReminder.innerHTML = reminders ? `<h3>Upcoming Tasks</h3>${reminders}` : "<h3>No upcoming tasks</h3>";
+            }
+
+            function generateCalendar(year) {
+                yearElement.textContent = year;
+                calendarContainer.innerHTML = ""; // clear previous calendar
+                displayReminders(year);
+
+                for (let i = 0; i < 12; i++) {
+                    const monthDiv = document.createElement("div");
+                    monthDiv.classList.add("month");
+                    monthDiv.innerHTML = `<h2>${monthNames[i]}</h2>`;
+
+                    const daysDiv = document.createElement("div");
+                    daysDiv.classList.add("days");
+
+                    daysOfWeek.forEach(day => {
+                        const dayName = document.createElement("div");
+                        dayName.style.fontWeight = "bold";
+                        dayName.textContent = day;
+                        daysDiv.appendChild(dayName);
+                    });
+
+                    let firstDay = firstDayOfMonth(i, year);
+                    for (let k = 0; k < firstDay; k++) {
+                        daysDiv.appendChild(document.createElement("div"));
+                    }
+
+                    for (let j = 1; j <= daysInMonth(i, year); j++) {
+                        const dayDiv = document.createElement("div");
+                        dayDiv.classList.add("day");
+                        dayDiv.textContent = j;
+                        dayDiv.dataset.date = `${year}-${i + 1}-${j}`;
+
+                        // Only highlight current day if the calendar is showing current year and month
+                        const now = new Date();
+                        if (year === now.getFullYear() && i === now.getMonth() && j === now.getDate()) {
+                            dayDiv.classList.add("current-day");
+                        }
+
+                        if (localStorage.getItem(dayDiv.dataset.date)) {
+                            dayDiv.classList.add("has-task");
+                        }
+
+                        dayDiv.addEventListener("click", openTodo);
+                        daysDiv.appendChild(dayDiv);
+                    }
+
+                    monthDiv.appendChild(daysDiv);
+                    calendarContainer.appendChild(monthDiv);
+                }
+            }
+
+            generateCalendar(displayedYear);
+        });
+
+        function openTodo(event) {
+            const selectedDate = event.target.dataset.date;
+            document.getElementById("todoTitle").textContent = `Tasks for ${selectedDate}`;
+            document.getElementById("todoInput").value = localStorage.getItem(selectedDate) || "";
+            document.getElementById("todoContainer").style.display = "block";
+            document.getElementById("todoInput").dataset.date = selectedDate;
+        }
+
+        function saveTodo() {
+            const date = document.getElementById("todoInput").dataset.date;
+            localStorage.setItem(date, document.getElementById("todoInput").value);
+            location.reload();
+        }
+
+        function deleteTodo() {
+            localStorage.removeItem(document.getElementById("todoInput").dataset.date);
+            location.reload();
+        }
+
+        function closeTodo() {
+            document.getElementById("todoContainer").style.display = "none";
+        }
+    </script>
+</body>
+</html>

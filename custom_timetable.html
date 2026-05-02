@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timetable</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://i.pinimg.com/1200x/5c/cf/30/5ccf30c995610b30a679a10df26266ab.jpg') no-repeat center center/cover;
+            background-size: cover;
+            background-color: #e6e6e6;
+
+            margin: 0;
+            padding: 20px;
+            color: #0d0303;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #b6a03da1;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(128, 0, 128, 0.75);
+            backdrop-filter: blur(12px);
+            color: #040214;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #01070e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #f9f9f9;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #010305;
+            color: white;
+        }
+        .am { background-color: whitesmoke; }
+        .pm { background-color: white }
+        .btn {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .btn-remove {
+            background-color: rgb(138, 21, 21);
+            color: white;
+        }
+        .btn-save {
+            background-color:rgb(2, 81, 6);
+            color: white;
+        }
+        .btn-view {
+            background-color: rgb(239, 101, 239);
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #preview-section {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Study Timetable</h1>
+        <div>
+            <div class="form-group">
+                <label for="subject">Enter Subject</label>
+                <input type="text" id="subject" placeholder="Enter Subject">
+            </div>
+            <div class="form-group">
+                <label for="start-time">Start Time</label>
+                <input type="time" id="start-time">
+            </div>
+            <div class="form-group">
+                <label for="end-time">End Time</label>
+                <input type="time" id="end-time">
+            </div>
+            <div class="form-group">
+                <label for="day">Select Day</label>
+                <select id="day">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+            <button class="btn btn-add" onclick="addEntry()">Add Entry</button>
+        </div>
+        <table id="timetable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                    <th>Sunday</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button class="btn btn-save" onclick="saveTimetable()">Save Timetable</button>
+        <button class="btn btn-view" onclick="viewTimetable()">View Timetable</button>
+        <div id="preview-section">
+            <h2>Preview Timetable</h2>
+            <table id="preview-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                        <th>Sunday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function formatTime(time) {
+            const [hours, minutes] = time.split(":");
+            const period = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 || 12;
+            return `${formattedHours}:${minutes} ${period}`;
+        }
+
+        function addEntry() {
+            const subject = document.getElementById('subject').value;
+            const startTime = document.getElementById('start-time').value;
+            const endTime = document.getElementById('end-time').value;
+            const day = document.getElementById('day').value;
+            
+            if (!subject || !startTime || !endTime) {
+                alert("Please fill all fields");
+                return;
+            }
+            
+            const tbody = document.querySelector("#timetable tbody");
+            const timeSlot = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+            
+            // Check if a row with the same time slot already exists
+            let row = Array.from(tbody.children).find(row => row.cells[0].textContent === timeSlot);
+            
+            if (!row) {
+                // Create a new row if the time slot doesn't exist
+                row = document.createElement('tr');
+                row.innerHTML = `<td>${timeSlot}</td>
+                                <td class="Monday"></td>
+                                <td class="Tuesday"></td>
+                                <td class="Wednesday"></td>
+                                <td class="Thursday"></td>
+                                <td class="Friday"></td>
+                                <td class="Saturday"></td>
+                                <td class="Sunday"></td>
+                                <td><button class='btn btn-remove' onclick='removeEntry(this)'>Remove</button></td>`;
+                tbody.appendChild(row);
+            }
+            
+            // Add the subject to the correct day column
+            row.querySelector(`.${day}`).textContent = subject;
+            row.classList.add(startTime < "12:00" ? "am" : "pm");
+            saveTimetable();
+        }
+
+        function removeEntry(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+            saveTimetable();
+        }
+
+        function saveTimetable() {
+            localStorage.setItem("studentTimetable", document.querySelector("#timetable tbody").innerHTML);
+        }
+
+        function viewTimetable() {
+            const previewTable = document.querySelector("#preview-table tbody");
+            previewTable.innerHTML = document.querySelector("#timetable tbody").innerHTML;
+            document.getElementById("preview-section").style.display = "block";
+            
+            // Remove the remove button in preview
+            previewTable.querySelectorAll(".btn-remove").forEach(button => button.remove());
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("#timetable tbody").innerHTML = localStorage.getItem("studentTimetable") || "";
+        });
+    </script>
+</body>
+</html>

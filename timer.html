@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://i.pinimg.com/1200x/d7/a4/69/d7a469df37feb8b26381c8eac9c5231d.jpg') no-repeat center center; 
+            background-size: cover;
+            color: black;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(130, 164, 223, 0.51);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(42, 144, 170, 0.512);
+            backdrop-filter: blur(10px);
+            width: 50%;
+            max-width: 400px;
+            border: 1px solid rgba(56, 130, 179, 0.623);
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .time-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 70px;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgb(1, 20, 22);
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #5680e1, #5e5b6e5b);
+            border: none;
+            padding: 12px 15px;
+            font-size: 16px;
+            color: rgb(2, 2, 0);
+            cursor: pointer;
+            border-radius: 8px;
+            min-width: 90px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(49, 111, 197, 0.91);
+        }
+
+        .timer-display {
+            font-size: 38px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #e41f1fe8;
+            text-shadow: 0px 4px 6px rgba(27, 7, 7, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .time-inputs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            input {
+                width: 80px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1>⏳Timer</h1>
+        
+        <!-- Time Inputs -->
+        <div class="time-inputs">
+            <input type="number" id="hours" placeholder="HH" min="0">
+            <input type="number" id="minutes" placeholder="MM" min="0" max="59">
+            <input type="number" id="seconds" placeholder="SS" min="0" max="59">
+        </div>
+
+        <!-- Timer Display -->
+        <div class="timer-display" id="timer">00:00:00</div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button onclick="startTimer()">Start</button>
+            <button onclick="pauseTimer()">Pause</button>
+            <button onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Alert Sound (Pleasant Chime) -->
+    <audio id="alarm-sound" src="https://www.fesliyanstudios.com/play-mp3/4389"></audio>
+
+    <script>
+        let timer;
+        let totalSeconds = 0;
+        let isRunning = false;
+
+        function startTimer() {
+            if (isRunning) return;
+            // isRunning = true;
+
+            if (totalSeconds === 0) {
+               let h = parseInt(document.getElementById("hours").value) || 0;
+               let m = parseInt(document.getElementById("minutes").value) || 0;
+               let s = parseInt(document.getElementById("seconds").value) || 0;
+
+               totalSeconds = h * 3600 + m * 60 + s;
+
+                if (totalSeconds <= 0) {
+                  alert("Please enter a valid time!");
+                  isRunning = false;
+                  return;
+                }
+            }
+
+            // updateDisplay();
+            isRunning = true;
+            updateDisplay();
+            timer = setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timer);
+                    isRunning = false;
+
+                    // 🔔 Play chime sound for 5 seconds
+                    let alarmSound = document.getElementById("alarm-sound");
+                    alarmSound.loop = true;
+                    alarmSound.play();
+
+                    setTimeout(() => {
+                        alarmSound.loop = false;
+                        alarmSound.pause();
+                        alarmSound.currentTime = 0;
+                    }, 5000); // Stop after 5 seconds
+
+                    alert("⏰ Time is up!");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            totalSeconds = 0;
+
+            document.getElementById("hours").value = "";
+            document.getElementById("minutes").value = "";
+            document.getElementById("seconds").value = ""; 
+           
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
+            document.getElementById("timer").innerText =
+                `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        }
+    </script>
+</body>
+</html>

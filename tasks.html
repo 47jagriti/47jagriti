@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Scheduler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+             
+        }
+        body {
+            background: url('https://i.pinimg.com/1200x/40/e7/2d/40e72d1d8850732c605253cd0d500a41.jpg') no-repeat center center/cover;
+
+            background: linear-gradient(deg, #1E1E2F, #3A506B);
+            color: rgba(0, 2, 4, 0.871);
+            padding: 20px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 120px 0 0 200px;
+            background: rgba(100, 22, 165, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(60, 53, 133, 0.801);
+            backdrop-filter: blur(15px);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #131301;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        input, textarea {
+            background: rgba(231, 231, 236, 0.977);
+            color: rgb(11, 1, 1);
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(9, 3, 3, 0.997);
+        }
+        input:focus, textarea:focus {
+            background: rgba(136, 124, 211, 0.692);
+        }
+        button {
+            background: #f8f1f5fb;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #bcc60ab1;
+        }
+        .task {
+            background: rgba(165, 138, 173, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .task:hover {
+            transform: translateY(-5px);
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #2c0202;
+        }
+        .task button {
+            background: rgb(255, 255, 255);
+            color: white;
+            border: none;
+            margin-left: 5px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        .task button:hover {
+            background: rgba(158, 60, 60, 0.53);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Scheduler</h1>
+        <input type="text" id="taskName" placeholder="Enter Task Name">
+        <textarea id="taskDesc" placeholder="Enter Task Description"></textarea>
+        <input type="date" id="dueDate">
+        <button onclick="addTask()">Add Task</button>
+
+        <h2>Pending Tasks</h2>
+        <div id="taskList"></div>
+
+        <h2>Completed Tasks</h2>
+        <div id="completedTasks"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+        });
+
+        function addTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const date = document.getElementById('dueDate').value;
+
+            if (!name || !date) {
+                alert('Please enter both Task Name and Due Date.');
+                return;
+            }
+
+            const task = { name, desc: desc || 'No Description', date };
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push(task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+
+            displayTask(task, false);
+            clearInputFields();
+        }
+
+        function displayTask(task, isCompleted) {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task';
+            if (isCompleted) taskDiv.classList.add('completed');
+
+            taskDiv.innerHTML = `
+                <div>
+                    <strong>${task.name}</strong><br>
+                    <small>${task.desc}</small><br>
+                    <small>Due: ${task.date}</small>
+                </div>
+                <div>
+                    <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="markCompleted(this)">
+                    <button onclick="deleteTask(this)">❌</button>
+                </div>
+            `;
+
+            if (isCompleted) {
+                document.getElementById('completedTasks').appendChild(taskDiv);
+            } else {
+                document.getElementById('taskList').appendChild(taskDiv);
+            }
+        }
+
+        function loadTasks() {
+            document.getElementById('taskList').innerHTML = '';
+            document.getElementById('completedTasks').innerHTML = '';
+
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+
+            tasks.forEach(task => displayTask(task, false));
+            completedTasks.forEach(task => displayTask(task, true));
+        }
+
+        function markCompleted(checkbox) {
+            const taskDiv = checkbox.parentElement.parentElement;
+            const isCompleted = checkbox.checked;
+
+            if (isCompleted) {
+                document.getElementById('completedTasks').appendChild(taskDiv);
+            } else {
+                document.getElementById('taskList').appendChild(taskDiv);
+            }
+
+            taskDiv.classList.toggle('completed', isCompleted);
+            updateLocalStorage();
+        }
+
+        function deleteTask(button) {
+            button.parentElement.parentElement.remove();
+            updateLocalStorage();
+        }
+
+        function updateLocalStorage() {
+            const pendingTasks = Array.from(document.getElementById('taskList').children).map(div => extractTaskData(div));
+            const completedTasks = Array.from(document.getElementById('completedTasks').children).map(div => extractTaskData(div));
+
+            localStorage.setItem('tasks', JSON.stringify(pendingTasks));
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+        }
+
+        function extractTaskData(div) {
+            return {
+                name: div.querySelector('strong').innerText,
+                desc: div.querySelector('small:first-of-type').innerText,
+                date: div.querySelector('small:last-of-type').innerText.replace('Due: ', '')
+            };
+        }
+
+        function clearInputFields() {
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDesc').value = '';
+            document.getElementById('dueDate').value = '';
+        }
+    </script>
+</body>
+</html>

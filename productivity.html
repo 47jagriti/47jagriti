@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive LSAT Study Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #15063a;
+            --secondary: #000000;
+            --accent: #00621d;
+            --highlight: #f4f1f1db;
+            --success: #41d17ac1;
+            --warning: #f39c12;
+            --danger: #2a678d;
+            --light: #01080a;
+            --text: #000000;
+            --text-light: #0b0b0b;
+            --bg: #908686a6;
+            --card: #dfd27c91;
+            --shadow: rgba(234, 233, 238, 0.957);
+            --shadow-heavy: rgba(248, 242, 242, 0.981);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background:           
+                url('https://i.pinimg.com/736x/b0/35/36/b03536af208ae055a280a7093afbbe5e.jpg') no-repeat center center/cover;
+                background-size: 100% 100%;
+            font-family: 'Crimson Pro', serif;
+            /* background: linear-gradient(135deg, #e5e57c 0%, #dd6565 100%); */
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(176, 11, 182, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(17, 14, 14, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: rgb(17, 16, 16);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(20, 20, 20, 0.2);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            color: rgba(34, 7, 45, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px var(--shadow-heavy);
+            animation: fadeInUp 0.6s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--highlight));
+        }
+
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 25px 0 15px;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1.05rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #0b0b0b;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Crimson Pro', serif;
+            transition: all 0.3s ease;
+            background: rgba(159, 127, 161, 0.721);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--highlight);
+            box-shadow: 0 0 0 3px rgba(16, 18, 9, 0.1);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), var(--highlight));
+            color: rgb(14, 10, 10);
+            border: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 15px rgba(29, 146, 223, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(232, 225, 21, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #87b1b5);
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-strength {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .strength-bars {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .strength-bar {
+            flex: 1;
+            text-align: center;
+        }
+
+        .strength-bar label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .bar-container {
+            height: 100px;
+            background: rgb(18, 17, 13);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ffffff;
+        }
+
+        .bar-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, var(--accent), var(--highlight));
+            transition: height 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 8px;
+            color: rgb(15, 13, 13);
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .schedule-week {
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+        }
+
+        .week-header {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .day-item {
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--highlight);
+            transition: all 0.3s ease;
+        }
+
+        .day-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .day-title {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+
+        .day-tasks {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--accent), var(--highlight));
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: rgb(8, 7, 7);
+            box-shadow: 0 4px 15px rgba(244, 246, 247, 0.979);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 30px 0;
+            background: rgb(176, 168, 168);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background: #dbdbdb;
+            border-color: var(--warning);
+            color: #e8c251;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: var(--success);
+            color: #c7e0cd;
+        }
+
+        .alert-info {
+            background: #f7fafa;
+            border-color: #d27373;
+            color: #dada6b;
+        }
+
+        .progress-indicator {
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #eeebeb;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #7b827ee7);
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgb(255, 255, 255), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .recommendations {
+            background: linear-gradient(135deg, #989adb, #3c4cb5);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .recommendation-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #0c0c0c;
+        }
+
+        .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-item::before {
+            content: '→';
+            color: var(--highlight);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .card { padding: 25px; }
+        }
+
+        .week-summary {
+            background: linear-gradient(135deg, #b178b7 0%, #2b0d96 100%);
+            color: rgb(243, 240, 240);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .week-summary h4 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Adaptive LSAT Study Planner</h1>
+            <p class="subtitle">AI-Powered Personalized Preparation</p>
+            <div style="max-width: 800px; margin: 30px auto 0; background: rgba(255,255,255,0.95); padding: 25px 35px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);">
+                <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text); margin-bottom: 15px;">
+                    Welcome to your intelligent LSAT study companion! This adaptive planner creates a personalized study schedule based on your current score, target goals, and available time. 
+                </p>
+                <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text); margin: 0;">
+                    Unlike static calendars, our AI continuously adjusts your plan based on weekly performance, identifies weak areas, prevents burnout, and projects your score trajectory—helping you study smarter, not just harder.
+                </p>
+            </div>
+        </header>
+
+        <!-- Initial Setup Form -->
+        <div id="setupSection" class="card">
+            <h2>📋 Initial Assessment</h2>
+            <form id="setupForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="currentScore">Current Diagnostic Score</label>
+                        <input type="number" id="currentScore" min="120" max="180" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetScore">Target Score</label>
+                        <input type="number" id="targetScore" min="120" max="180" required>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="testDate">Test Date</label>
+                        <input type="date" id="testDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weeklyHours">Weekly Study Hours Available</label>
+                        <input type="number" id="weeklyHours" min="5" max="50" required>
+                    </div>
+                </div>
+
+                <h3>Section Performance</h3>
+                <div class="section-strength">
+                    <div class="strength-bars">
+                        <div class="strength-bar">
+                            <label>Logical Reasoning</label>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="lrBar" style="height: 70%;">70%</div>
+                            </div>
+                            <input type="range" id="lrAccuracy" min="0" max="100" value="70" 
+                                   oninput="updateBar('lr', this.value)" style="margin-top: 10px;">
+                        </div>
+                        <div class="strength-bar">
+                            <label>Reading Comp.</label>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="rcBar" style="height: 65%;">65%</div>
+                            </div>
+                            <input type="range" id="rcAccuracy" min="0" max="100" value="65"
+                                   oninput="updateBar('rc', this.value)" style="margin-top: 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Average Time Per Question (seconds)</h3>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="lrTime">Logical Reasoning</label>
+                        <input type="number" id="lrTime" value="90" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rcTime">Reading Comp.</label>
+                        <input type="number" id="rcTime" value="90" required>
+                    </div>
+                </div>
+
+                <button type="submit">Generate Study Plan</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Stats Overview -->
+            <div class="card">
+                <h2>📊 Your Progress Dashboard</h2>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="currentScoreDisplay">147</div>
+                        <div class="stat-label">Current Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="targetScoreDisplay">160</div>
+                        <div class="stat-label">Target Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="weeksRemaining">12</div>
+                        <div class="stat-label">Weeks Remaining</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="projectedScore">158</div>
+                        <div class="stat-label">Projected Score</div>
+                    </div>
+                </div>
+
+                <div class="progress-indicator">
+                    <label style="margin-bottom: 10px; display: block;">Goal Progress</label>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="goalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="sectionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="card" id="recommendationsCard">
+                <h2>🤖 AI Recommendations</h2>
+                <div id="aiRecommendations" class="recommendations"></div>
+            </div>
+
+            <!-- Study Schedule -->
+            <div class="card">
+                <h2>📅 Your Adaptive Study Schedule</h2>
+                <p style="color: var(--text-light); margin-bottom: 25px;">
+                    This schedule adapts based on your performance. Update your progress weekly to get personalized adjustments.
+                </p>
+                <div id="scheduleContainer"></div>
+            </div>
+
+            <!-- Weekly Progress Update -->
+            <div class="card">
+                <h2>📈 Weekly Progress Update</h2>
+                <form id="progressForm">
+                    <div class="form-group">
+                        <label for="weekNumber">Week Number</label>
+                        <select id="weekNumber" required></select>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="practiceTestScore">Latest Practice Test Score</label>
+                            <input type="number" id="practiceTestScore" min="120" max="180">
+                        </div>
+                        <div class="form-group">
+                            <label for="studyHoursCompleted">Hours Studied This Week</label>
+                            <input type="number" id="studyHoursCompleted" min="0" max="50" required>
+                        </div>
+                    </div>
+
+                    <h3>Section Performance This Week</h3>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="lrAccuracyUpdate">LR Accuracy %</label>
+                            <input type="number" id="lrAccuracyUpdate" min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rcAccuracyUpdate">RC Accuracy %</label>
+                            <input type="number" id="rcAccuracyUpdate" min="0" max="100" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficultyLevel">How did this week feel?</label>
+                        <select id="difficultyLevel" required>
+                            <option value="">Select...</option>
+                            <option value="too-easy">Too Easy</option>
+                            <option value="just-right">Just Right</option>
+                            <option value="challenging">Challenging</option>
+                            <option value="overwhelming">Overwhelming</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit">Update Progress & Adapt Plan</button>
+                        <button type="button" class="btn-secondary" onclick="resetPlanner()">Start New Plan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let studyPlan = {
+            user: {},
+            schedule: [],
+            history: [],
+            currentWeek: 1
+        };
+
+        let scoreChart, sectionChart;
+
+        // Update visual bars
+        function updateBar(section, value) {
+            const bar = document.getElementById(section + 'Bar');
+            bar.style.height = value + '%';
+            bar.textContent = value + '%';
+        }
+
+        // Setup form submission
+        document.getElementById('setupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateStudyPlan();
+        });
+
+        function generateStudyPlan() {
+            // Collect user data
+            studyPlan.user = {
+                currentScore: parseInt(document.getElementById('currentScore').value),
+                targetScore: parseInt(document.getElementById('targetScore').value),
+                testDate: document.getElementById('testDate').value,
+                weeklyHours: parseInt(document.getElementById('weeklyHours').value),
+                sections: {
+                    lr: { accuracy: parseInt(document.getElementById('lrAccuracy').value), time: parseInt(document.getElementById('lrTime').value) },
+                    rc: { accuracy: parseInt(document.getElementById('rcAccuracy').value), time: parseInt(document.getElementById('rcTime').value) }
+                }
+            };
+
+            // Calculate weeks remaining
+            const today = new Date();
+            const testDate = new Date(studyPlan.user.testDate);
+            const weeksRemaining = Math.ceil((testDate - today) / (7 * 24 * 60 * 60 * 1000));
+            studyPlan.weeksRemaining = weeksRemaining;
+
+            // Generate schedule
+            generateSchedule();
+
+            // Initialize progress tracking
+            studyPlan.history.push({
+                week: 0,
+                score: studyPlan.user.currentScore,
+                sections: { ...studyPlan.user.sections }
+            });
+
+            // Show dashboard
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+
+            // Update displays
+            updateDashboard();
+            generateAIRecommendations();
+        }
+
+        function generateSchedule() {
+            studyPlan.schedule = [];
+            const { weeksRemaining } = studyPlan;
+            const { weeklyHours, sections } = studyPlan.user;
+
+            // Determine weakest sections
+            const sectionArray = [
+                { name: 'LR', accuracy: sections.lr.accuracy },
+                { name: 'RC', accuracy: sections.rc.accuracy }
+            ].sort((a, b) => a.accuracy - b.accuracy);
+
+            const weakest = sectionArray[0].name;
+            const strongest = sectionArray[1].name;
+
+            // Calculate practice test frequency
+            const ptFrequency = weeksRemaining > 8 ? 2 : 1; // PT every 2 weeks if >8 weeks, else weekly
+
+            for (let week = 1; week <= weeksRemaining; week++) {
+                const weekSchedule = {
+                    week,
+                    days: []
+                };
+
+                const hoursPerDay = weeklyHours / 6; // 6 study days, 1 rest
+                const isPTWeek = week % ptFrequency === 0;
+
+                // Day 1: Weakest section focus
+                weekSchedule.days.push({
+                    day: 'Monday',
+                    tasks: `${weakest} Drills (${Math.round(hoursPerDay * 2)} hrs) - Focus on your weakest area with timed practice`
+                });
+
+                // Day 2: Strongest section
+                weekSchedule.days.push({
+                    day: 'Tuesday',
+                    tasks: `${strongest} Drills (${Math.round(hoursPerDay * 1.5)} hrs) - Maintain proficiency with targeted practice`
+                });
+
+                // Day 3: Mixed review
+                weekSchedule.days.push({
+                    day: 'Wednesday',
+                    tasks: `Mixed Section Review (${Math.round(hoursPerDay * 1.5)} hrs) - Review mistakes from Mon/Tue`
+                });
+
+                // Day 4: Weakest section again
+                weekSchedule.days.push({
+                    day: 'Thursday',
+                    tasks: `${weakest} Advanced Practice (${Math.round(hoursPerDay * 2)} hrs) - Challenging problems in weak area`
+                });
+
+                // Day 5: Depends on PT week
+                if (isPTWeek) {
+                    weekSchedule.days.push({
+                        day: 'Friday',
+                        tasks: `Light Review (${Math.round(hoursPerDay * 0.5)} hr) - Prepare for tomorrow's PT`
+                    });
+                } else {
+                    weekSchedule.days.push({
+                        day: 'Friday',
+                        tasks: `${weakest} Advanced Drills (${Math.round(hoursPerDay * 2)} hrs) - Challenging problems`
+                    });
+                }
+
+                // Day 6: PT or comprehensive review
+                if (isPTWeek) {
+                    weekSchedule.days.push({
+                        day: 'Saturday',
+                        tasks: `Full Practice Test (3.5 hrs) - Simulate real test conditions, then score`
+                    });
+                } else {
+                    weekSchedule.days.push({
+                        day: 'Saturday',
+                        tasks: `Comprehensive Mixed Practice (${Math.round(hoursPerDay * 2)} hrs) - All sections`
+                    });
+                }
+
+                // Day 7: Rest or PT review
+                if (isPTWeek) {
+                    weekSchedule.days.push({
+                        day: 'Sunday',
+                        tasks: `Practice Test Review (${Math.round(hoursPerDay * 2)} hrs) - Deep analysis of errors`
+                    });
+                } else {
+                    weekSchedule.days.push({
+                        day: 'Sunday',
+                        tasks: `Rest Day - Mental recovery and light review of notes`
+                    });
+                }
+
+                studyPlan.schedule.push(weekSchedule);
+            }
+
+            displaySchedule();
+        }
+
+        function displaySchedule() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = '';
+
+            // Only show first 4 weeks initially
+            const weeksToShow = Math.min(4, studyPlan.schedule.length);
+
+            for (let i = 0; i < weeksToShow; i++) {
+                const week = studyPlan.schedule[i];
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'schedule-week';
+                
+                let weekHTML = `<div class="week-header">Week ${week.week}</div>`;
+                
+                week.days.forEach(day => {
+                    weekHTML += `
+                        <div class="day-item">
+                            <div class="day-title">${day.day}</div>
+                            <div class="day-tasks">${day.tasks}</div>
+                        </div>
+                    `;
+                });
+
+                weekDiv.innerHTML = weekHTML;
+                container.appendChild(weekDiv);
+            }
+
+            if (studyPlan.schedule.length > 4) {
+                container.innerHTML += `<p style="text-align: center; color: var(--text-light); margin-top: 20px;">Showing first 4 weeks. Full ${studyPlan.schedule.length}-week plan adapts as you progress.</p>`;
+            }
+
+            // Populate week selector
+            const weekSelect = document.getElementById('weekNumber');
+            weekSelect.innerHTML = '';
+            for (let i = 1; i <= studyPlan.schedule.length; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Week ${i}`;
+                weekSelect.appendChild(option);
+            }
+        }
+
+        function updateDashboard() {
+            const { currentScore, targetScore } = studyPlan.user;
+            const latestScore = studyPlan.history[studyPlan.history.length - 1].score;
+
+            // Update stats
+            document.getElementById('currentScoreDisplay').textContent = latestScore;
+            document.getElementById('targetScoreDisplay').textContent = targetScore;
+            document.getElementById('weeksRemaining').textContent = studyPlan.weeksRemaining;
+
+            // Calculate projected score (simple linear projection)
+            const weeksElapsed = studyPlan.history.length - 1;
+            const scoreGain = latestScore - currentScore;
+            const weeksLeft = studyPlan.weeksRemaining - weeksElapsed;
+            const projectedGainRate = weeksElapsed > 0 ? scoreGain / weeksElapsed : 1;
+            const projected = Math.round(latestScore + (projectedGainRate * weeksLeft));
+            document.getElementById('projectedScore').textContent = Math.min(180, Math.max(120, projected));
+
+            // Update progress bar
+            const progress = Math.min(100, ((latestScore - currentScore) / (targetScore - currentScore)) * 100);
+            document.getElementById('goalProgress').style.width = progress + '%';
+
+            // Update charts
+            updateCharts();
+        }
+
+        function updateCharts() {
+            // Score progression chart
+            const scoreCtx = document.getElementById('scoreChart');
+            if (scoreChart) scoreChart.destroy();
+
+            const labels = studyPlan.history.map(h => `Week ${h.week}`);
+            const scores = studyPlan.history.map(h => h.score);
+
+            scoreChart = new Chart(scoreCtx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Practice Test Score',
+                        data: scores,
+                        borderColor: '#3282b8',
+                        backgroundColor: 'rgba(50, 130, 184, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }, {
+                        label: 'Target Score',
+                        data: Array(labels.length).fill(studyPlan.user.targetScore),
+                        borderColor: '#2ecc71',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Score Progression',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 120,
+                            max: 180,
+                            title: {
+                                display: true,
+                                text: 'LSAT Score'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Section accuracy chart
+            const sectionCtx = document.getElementById('sectionChart');
+            if (sectionChart) sectionChart.destroy();
+
+            const latestData = studyPlan.history[studyPlan.history.length - 1];
+
+            sectionChart = new Chart(sectionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Logical Reasoning', 'Reading Comprehension'],
+                    datasets: [{
+                        label: 'Accuracy %',
+                        data: [
+                            latestData.sections.lr.accuracy,
+                            latestData.sections.rc.accuracy
+                        ],
+                        backgroundColor: [
+                            'rgba(50, 130, 184, 0.8)',
+                            'rgba(102, 126, 234, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(50, 130, 184, 1)',
+                            'rgba(102, 126, 234, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Current Section Performance',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Accuracy %'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateAIRecommendations() {
+            const recommendations = [];
+            const latestData = studyPlan.history[studyPlan.history.length - 1];
+            const { sections } = latestData;
+
+            // Find weakest section
+            const sectionArray = [
+                { name: 'Logical Reasoning', key: 'lr', accuracy: sections.lr.accuracy, time: sections.lr.time },
+                { name: 'Reading Comprehension', key: 'rc', accuracy: sections.rc.accuracy, time: sections.rc.time }
+            ].sort((a, b) => a.accuracy - b.accuracy);
+
+            const weakest = sectionArray[0];
+            const strongest = sectionArray[1];
+
+            // Accuracy-based recommendations
+            if (weakest.accuracy < 65) {
+                recommendations.push(`<strong>Focus Alert:</strong> Your ${weakest.name} accuracy (${weakest.accuracy}%) needs significant improvement. Increase drill time by 25% next week.`);
+            } else if (weakest.accuracy < 75) {
+                recommendations.push(`<strong>Improvement Needed:</strong> ${weakest.name} at ${weakest.accuracy}% - dedicate 40% of study time to this section.`);
+            }
+
+            // Timing recommendations
+            if (weakest.time > 95) {
+                recommendations.push(`<strong>Timing Issue:</strong> You're averaging ${weakest.time} seconds per ${weakest.name} question. Practice with a 90-second timer to build speed.`);
+            }
+
+            // Check for plateau
+            if (studyPlan.history.length >= 3) {
+                const recent = studyPlan.history.slice(-3).map(h => h.score);
+                const variance = Math.max(...recent) - Math.min(...recent);
+                if (variance <= 2) {
+                    recommendations.push(`<strong>Plateau Detected:</strong> Your score has remained steady for 3 weeks. Consider taking a 2-day break to prevent burnout, then try new question types.`);
+                }
+            }
+
+            // Burnout prevention
+            if (studyPlan.user.weeklyHours > 25) {
+                recommendations.push(`<strong>Burnout Risk:</strong> You're studying ${studyPlan.user.weeklyHours} hours/week. Consider reducing to 20-22 hours for better retention and mental health.`);
+            }
+
+            // Positive reinforcement
+            if (strongest.accuracy >= 80) {
+                recommendations.push(`<strong>Excellent Work:</strong> Your ${strongest.name} accuracy (${strongest.accuracy}%) is strong. Maintain with 1-2 drills per week.`);
+            }
+
+            // Score projection
+            const latestScore = studyPlan.history[studyPlan.history.length - 1].score;
+            const weeksElapsed = studyPlan.history.length - 1;
+            if (weeksElapsed > 0) {
+                const scoreGain = latestScore - studyPlan.user.currentScore;
+                const avgGainPerWeek = scoreGain / weeksElapsed;
+                const projected = latestScore + (avgGainPerWeek * (studyPlan.weeksRemaining - weeksElapsed));
+                
+                if (projected >= studyPlan.user.targetScore) {
+                    recommendations.push(`<strong>On Track:</strong> At your current pace, you're projected to score ${Math.round(projected)} by test day. Keep up the great work!`);
+                } else {
+                    const gap = studyPlan.user.targetScore - projected;
+                    recommendations.push(`<strong>Adjustment Needed:</strong> Current projection: ${Math.round(projected)}. You need approximately ${Math.round(gap)} more points. Increase study intensity slightly.`);
+                }
+            }
+
+            // Display recommendations
+            const container = document.getElementById('aiRecommendations');
+            container.innerHTML = recommendations.map(rec => 
+                `<div class="recommendation-item">${rec}</div>`
+            ).join('');
+        }
+
+        // Progress form submission
+        document.getElementById('progressForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateProgress();
+        });
+
+        function updateProgress() {
+            const week = parseInt(document.getElementById('weekNumber').value);
+            const score = parseInt(document.getElementById('practiceTestScore').value) || null;
+            const hoursStudied = parseInt(document.getElementById('studyHoursCompleted').value);
+            const difficulty = document.getElementById('difficultyLevel').value;
+
+            const newSections = {
+                lr: {
+                    accuracy: parseInt(document.getElementById('lrAccuracyUpdate').value),
+                    time: studyPlan.history[studyPlan.history.length - 1].sections.lr.time
+                },
+                rc: {
+                    accuracy: parseInt(document.getElementById('rcAccuracyUpdate').value),
+                    time: studyPlan.history[studyPlan.history.length - 1].sections.rc.time
+                }
+            };
+
+            // Add to history
+            studyPlan.history.push({
+                week,
+                score: score || studyPlan.history[studyPlan.history.length - 1].score,
+                sections: newSections,
+                hoursStudied,
+                difficulty
+            });
+
+            // Adaptive adjustments
+            adaptSchedule(newSections, difficulty, hoursStudied);
+
+            // Update displays
+            updateDashboard();
+            generateAIRecommendations();
+            displaySchedule();
+
+            // Show success message
+            alert('Progress updated! Your study plan has been adapted based on your performance.');
+
+            // Reset form
+            document.getElementById('progressForm').reset();
+        }
+
+        function adaptSchedule(sections, difficulty, hoursStudied) {
+            // Find new weakest section
+            const sectionArray = [
+                { name: 'LR', accuracy: sections.lr.accuracy },
+                { name: 'RC', accuracy: sections.rc.accuracy }
+            ].sort((a, b) => a.accuracy - b.accuracy);
+
+            const weakest = sectionArray[0];
+
+            // Check for significant drops
+            const lastWeek = studyPlan.history[studyPlan.history.length - 2];
+            const lrDrop = lastWeek.sections.lr.accuracy - sections.lr.accuracy;
+            const rcDrop = lastWeek.sections.rc.accuracy - sections.rc.accuracy;
+
+            let focusSection = weakest.name;
+            if (lrDrop > 5 || rcDrop > 5) {
+                if (lrDrop >= rcDrop) focusSection = 'LR';
+                else focusSection = 'RC';
+            }
+
+            // Adjust schedule based on difficulty feedback
+            if (difficulty === 'overwhelming' || (difficulty === 'challenging' && hoursStudied < studyPlan.user.weeklyHours * 0.8)) {
+                // Reduce intensity, add more review days
+                console.log('Adapting: Reducing intensity due to difficulty');
+            } else if (difficulty === 'too-easy') {
+                // Increase challenge
+                console.log('Adapting: Increasing difficulty level');
+            }
+
+            // In a full implementation, this would regenerate the schedule
+            // For now, the schedule remains but recommendations change
+        }
+
+        function resetPlanner() {
+            if (confirm('Are you sure you want to start a new study plan? This will clear all your progress.')) {
+                studyPlan = {
+                    user: {},
+                    schedule: [],
+                    history: [],
+                    currentWeek: 1
+                };
+                document.getElementById('dashboardSection').classList.add('hidden');
+                document.getElementById('setupSection').classList.remove('hidden');
+                document.getElementById('setupForm').reset();
+            }
+        }
+    </script>
+</body>
+</html>

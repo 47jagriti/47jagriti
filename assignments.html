@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            
+            background: url('https://i.pinimg.com/originals/e6/84/52/e68452758f45634cd8100a7160416768.png') no-repeat center center/cover;
+            background-size:  top;
+            background-color: black;
+            background: linear-gradient(deg, #294f75, #5bc6d7);
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: rgba(189, 95, 189, 0.2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(210, 194, 24, 0.2);
+            backdrop-filter: blur(12px);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0c0b01;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea {
+            background: rgba(255, 254, 255, 0.989);
+            color: rgb(15, 1, 1);
+        }
+        button {
+            background: #6ac13e;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #951a04;
+        }
+        .assignment {
+            background: rgba(197, 163, 38, 0.89);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #960a21a3;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+            input, textarea, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .assignment {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Assignments Manager</h1>
+        <input type="text" id="assignmentTitle" placeholder="Assignment Title">
+        <textarea id="assignmentDesc" placeholder="Assignment Description"></textarea>
+        <input type="date" id="dueDate">
+        <input type="text" id="subject" placeholder="Enter Subject Name">
+        <button onclick="addAssignment()">Add Assignment</button>
+
+        <h2>Pending Assignments</h2>
+        <div id="pendingAssignments"></div>
+
+        <h2>Completed Assignments</h2>
+        <div id="completedAssignments"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssignments();
+        });
+
+        function addAssignment() {
+            const title = document.getElementById('assignmentTitle').value;
+            const desc = document.getElementById('assignmentDesc').value;
+            const date = document.getElementById('dueDate').value;
+            const subject = document.getElementById('subject').value.trim();
+            if (title === '' || date === '' || subject === '') {
+                alert('Please fill in all fields.');
+                return;
+            }
+            const assignment = { title, desc, date, subject, completed: false };
+            const assignments = getAssignments();
+            assignments.push(assignment);
+            saveAssignments(assignments);
+            loadAssignments();
+            clearFields();
+        }
+
+        function loadAssignments() {
+            const pendingDiv = document.getElementById('pendingAssignments');
+            const completedDiv = document.getElementById('completedAssignments');
+            pendingDiv.innerHTML = completedDiv.innerHTML = '';
+            getAssignments().forEach(assignment => {
+                const assignmentElement = createAssignmentElement(assignment);
+                if (assignment.completed) completedDiv.appendChild(assignmentElement);
+                else pendingDiv.appendChild(assignmentElement);
+            });
+        }
+
+        function createAssignmentElement(assignment) {
+            const assignmentDiv = document.createElement('div');
+            assignmentDiv.className = 'assignment';
+            if (assignment.completed) assignmentDiv.classList.add('completed');
+            assignmentDiv.innerHTML = `
+                <div>
+                    <strong>${assignment.title}</strong><br>
+                    <small>${assignment.desc}</small><br>
+                    <small>Subject: ${assignment.subject}</small><br>
+                    <small>Due: ${assignment.date}</small>
+                </div>
+                <div>
+                    <input type="checkbox" ${assignment.completed ? 'checked' : ''} onclick="markCompleted('${assignment.title}')">
+                    <button onclick="deleteAssignment('${assignment.title}')">❌</button>
+                </div>
+            `;
+            return assignmentDiv;
+        }
+
+        function markCompleted(title) {
+            let assignments = getAssignments().map(assignment => {
+                if (assignment.title === title) {
+                    assignment.completed = !assignment.completed;
+                }
+                return assignment;
+            });
+            saveAssignments(assignments);
+            loadAssignments();
+        }
+
+        function deleteAssignment(title) {
+            let assignments = getAssignments().filter(a => a.title !== title);
+            saveAssignments(assignments);
+            loadAssignments();
+        }
+
+        function getAssignments() {
+            return JSON.parse(localStorage.getItem('assignments')) || [];
+        }
+
+        function saveAssignments(assignments) {
+            localStorage.setItem('assignments', JSON.stringify(assignments));
+        }
+
+        function clearFields() {
+            document.getElementById('assignmentTitle').value = '';
+            document.getElementById('assignmentDesc').value = '';
+            document.getElementById('dueDate').value = '';
+            document.getElementById('subject').value = '';
+        }
+    </script>
+</body>
+</html>
