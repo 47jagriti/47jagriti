@@ -1,56 +1,92 @@
-# 🎓 Student Dashboard
+# 📊 Student Productivity Dashboard
 
-**Student Dashboard** is a lightweight, client-side web app designed to help students organize their tasks and assignments, track study schedules, and stay focused. It includes a task manager, assignment manager, custom timetable, calendar with to-dos, games, a Pomodoro timer. AI-Powered Personalized Preparation
-[🌐 **Live Demo Here**](https://student-dashboard-jagriti.netlify.app/)
+> **Plan . Track . Improve your study** 🎓
+
+A beautifully designed, fully client-side web app built to help students organize their academic life — from daily tasks to exam preparation!
+
+🌐 **Live Demo:** [https://47jagriti.github.io/47jagriti/](https://47jagriti.github.io/47jagriti/)
 
 ---
 
 ## ✨ Features
 
-- ✅ **Task planner:** Add, edit, and delete study tasks stored in localStorage.
-- ✅ **Assignment Manager:** Manage assignments with title, description, and due dates.
-- ✅ **Custom Timetable & Calendar:** Plan and view your study schedule with to-do lists.
-- ✅ **Pomodoro Timer:** Focus with study-break cycles.
-- ✅ **Games:** Relax with built-in fun games.
-- ✅ **progress:** helping you study smarter, not just harder.
+| Feature | Description |
+|---|---|
+| 🗂️ **Task Scheduler** | Add, track, and complete daily study tasks with due dates |
+| 📁 **Assignment Manager** | Manage assignments by subject with deadlines |
+| 📅 **Yearly Calendar** | Visual full-year calendar with upcoming task highlights |
+| ⏰ **Study Timetable** | Create a custom weekly timetable for all subjects |
+| ⏱️ **Study Timer** | Countdown timer to stay focused during study sessions |
+| 🎮 **Refresh Zone** | 8+ games (Snake, Flappy Bird, Chess, Sudoku, Scrabble & more!) |
+| 📈 **Progress Tracker** | Input exam scores & auto-generate a personalized weekly study plan |
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠️ Tech Stack
 
-- HTML, CSS, JavaScript
-- localStorage for persistent data
-
+- **HTML5** — Structure & Semantic Markup
+- **CSS3** — Styling, Animations & Responsive Design
+- **JavaScript (Vanilla)** — Logic, DOM Manipulation & localStorage
+- **localStorage** — Persistent data storage (no backend needed!)
 
 ---
 
-## 🚀 Usage
+## 🚀 Getting Started
 
-1. Open `home.html` in your browser.
-2. Add tasks, assignments, and a study timetable.
-3. Use the Pomodoro timer for focused study.
-4. Your data is saved automatically in your browser.
-5. AI continuously adjusts your plan based on weekly performance, identifies weak areas, prevents burnout, and projects your score trajectory.
+1. Visit the live site: [https://47jagriti.github.io/47jagriti](https://47jagriti.github.io/47jagriti)
+2. Or clone the repo:
+```bash
+git clone https://github.com/47jagriti/47jagriti.git
+cd 47jagriti
+open index.html
+```
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+Clean dashboard with quick access to all features
+
+### 📈 Progress Tracker
+Enter section-wise scores → Generate a personalized weekly study plan automatically!
+
+### 🎮 Refresh Zone
+8+ built-in games including Snake, Flappy Bird, Chess, Sudoku, Scrabble & more!
+
+---
+
+## 🎯 Challenges Overcome
+
+- Syncing **localStorage data across multiple HTML pages**
+- Building **multiple games from scratch** using pure JavaScript
+- Creating a **dynamic study plan generator** based on user performance
+- Designing a fully **responsive UI** without any CSS framework
 
 ---
 
 ## ⚠️ Notes
 
-- All data is stored locally → clearing browser data will delete tasks.
-- No backend/server/database used.
-
+- All data is stored locally in your browser → clearing browser data will reset tasks
+- No backend, server, or database used
+- Works completely offline after first load
 
 ---
 
 ## 👤 Author
- jagriti kumari
+
+**Jagriti Kumari**
+- GitHub: [@47jagriti](https://github.com/47jagriti)
+- LinkedIn: [Connect with me!](https://www.linkedin.com/in/jagriti-kumari-854813290)
 
 ---
 
 ## 🪪 License
 
-This project is open-source and free to use under the MIT License.
+This project is open-source and free to use under the **MIT License**.
 
 ---
 
-> 📘 Simple and easy-to-use dashboard to boost your productivity and study habits!
+⭐ **If you found this helpful, please give it a star!** ⭐
+
+> 📘 *A simple and powerful dashboard to boost your productivity and study habits!*
